@@ -2,13 +2,10 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
-export class Post {
+export class Supplier {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  title: string;
-
-  @Column()
-  text: string;
+  name: string;
 }
