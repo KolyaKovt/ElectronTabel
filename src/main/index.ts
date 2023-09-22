@@ -1,4 +1,7 @@
-import { app, shell, BrowserWindow } from 'electron'
+import 'reflect-metadata'
+import { createDatabaseConnection } from '../database/database'
+import { Supplier } from '../entities/Supplier.entity'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png'
@@ -33,6 +36,8 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  makeChanelToFrontEnd(mainWindow)
 }
 
 // This method will be called when Electron has finished
@@ -69,3 +74,16 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+
+async function makeChanelToFrontEnd(mainWindow: BrowserWindow) {
+  const dataSource = await createDatabaseConnection()
+  const suppliersRepository = dataSource.getRepository(Supplier)
+
+  const allSuppliers = await suppliersRepository.find()
+  console.log(allSuppliers)
+
+  ipcMain.on('all-suppliers', async () => {
+    const allSuppliers = await suppliersRepository.find()
+    mainWindow.webContents.send('all-suppliers', allSuppliers)
+  })
+}
