@@ -1,10 +1,10 @@
-import 'reflect-metadata'
-import { createDatabaseConnection } from '../database/database'
-import { Supplier } from '../entities/Supplier.entity'
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png'
+import 'reflect-metadata'
+import { createDatabaseConnection } from '../database/database'
+import { Supplier } from '../entities/Supplier.entity'
 
 function createWindow(): void {
   // Create the browser window.
@@ -36,8 +36,6 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
-
-  makeChanelToFrontEnd(mainWindow)
 }
 
 // This method will be called when Electron has finished
@@ -61,6 +59,8 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+
+  getSupplierRepository()
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -75,15 +75,22 @@ app.on('window-all-closed', () => {
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
 
-async function makeChanelToFrontEnd(mainWindow: BrowserWindow) {
-  const dataSource = await createDatabaseConnection()
-  const suppliersRepository = dataSource.getRepository(Supplier)
+let suppliersRepository
 
-  const allSuppliers = await suppliersRepository.find()
-  console.log(allSuppliers)
-
-  ipcMain.on('all-suppliers', async () => {
+ipcMain.handle('get-suppliers', async (event, input: string): Promise<Supplier[]> => {
+  try {
     const allSuppliers = await suppliersRepository.find()
-    mainWindow.webContents.send('all-suppliers', allSuppliers)
-  })
+    return allSuppliers.filter(supplier => {
+      return supplier.name.toLowerCase().includes(input.toLowerCase())
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+})
+
+//I'm getting supplierRepository to talk to dataBase, to be exact to Suppliers
+async function getSupplierRepository() {
+  const dataSource = await createDatabaseConnection()
+  suppliersRepository = dataSource.getRepository(Supplier)
 }
