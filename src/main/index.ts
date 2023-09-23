@@ -83,7 +83,7 @@ ipcMain.handle('get-suppliers', async (event, input: string): Promise<Supplier[]
   try {
     const allSuppliers = await suppliersRepository.find()
     const foundSuppliers = allSuppliers.filter((supplier) => {
-      return supplier.name.toLowerCase().includes(input.toLowerCase())
+      return supplier.name.toLowerCase().includes(input.toLowerCase().trim())
     })
     return foundSuppliers
   } catch (error) {
