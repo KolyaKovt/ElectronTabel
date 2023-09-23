@@ -9,14 +9,17 @@ interface Api {
   getSuppliers: (input: string) => Promise<Supplier[]>
 }
 
+//get api from context bridge
 const api: Api = window.api as Api
 const allSuppliers: Ref<Supplier[]> = ref([])
 const searchInput: Ref<string> = ref('')
 
+//get the suppliers at the start
 onMounted(async () => {
   allSuppliers.value = await api.getSuppliers('')
 })
 
+//get found suppliers when the input changes
 watch(searchInput, async (newValue) => {
   allSuppliers.value = await api.getSuppliers(newValue)
 })
