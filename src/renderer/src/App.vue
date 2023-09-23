@@ -1,9 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, Ref } from 'vue'
 
-const api = window.api
-const allSuppliers = ref([])
-const searchInput = ref('')
+interface Supplier {
+  name: string
+}
+
+interface Api {
+  getSuppliers: (input: string) => Promise<Supplier[]>
+}
+
+const api: Api = window.api as Api
+const allSuppliers: Ref<Supplier[]> = ref([])
+const searchInput: Ref<string> = ref('')
 
 onMounted(async () => {
   allSuppliers.value = await api.getSuppliers('')
@@ -15,7 +23,7 @@ watch(searchInput, async (newValue) => {
 </script>
 
 <template>
-  <h1>Our suppliers: </h1>
+  <h1>Our suppliers:</h1>
   <br />
   Search: <input v-model="searchInput" type="text" />
   <br />

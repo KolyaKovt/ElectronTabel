@@ -78,6 +78,7 @@ app.on('window-all-closed', () => {
 
 let suppliersRepository: Repository<Supplier>
 
+//handle request to get suppliers
 ipcMain.handle('get-suppliers', async (event, input: string): Promise<Supplier[]> => {
   try {
     const allSuppliers = await suppliersRepository.find()
