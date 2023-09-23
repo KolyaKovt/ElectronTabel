@@ -5,7 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import 'reflect-metadata'
 import { createDatabaseConnection } from '../database/database'
 import { Supplier } from '../entities/Supplier.entity'
-import { Repository } from 'typeorm'
+import { ILike, Repository } from 'typeorm'
 
 function createWindow(): void {
   // Create the browser window.
@@ -81,9 +81,10 @@ let suppliersRepository: Repository<Supplier>
 //handle request to get suppliers
 ipcMain.handle('get-suppliers', async (event, input: string): Promise<Supplier[]> => {
   try {
-    const allSuppliers = await suppliersRepository.find()
-    const foundSuppliers = allSuppliers.filter((supplier) => {
-      return supplier.name.toLowerCase().includes(input.toLowerCase().trim())
+    const foundSuppliers = await suppliersRepository.find({
+      where: {
+        name: ILike(`%${input}%`)
+      }
     })
     return foundSuppliers
   } catch (error) {
