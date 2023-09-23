@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png'
 import 'reflect-metadata'
 import { createDatabaseConnection } from '../database/database'
 import { Supplier } from '../entities/Supplier.entity'
+import { Repository } from 'typeorm'
 
 function createWindow(): void {
   // Create the browser window.
@@ -75,14 +76,15 @@ app.on('window-all-closed', () => {
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
 
-let suppliersRepository
+let suppliersRepository: Repository<Supplier>
 
 ipcMain.handle('get-suppliers', async (event, input: string): Promise<Supplier[]> => {
   try {
     const allSuppliers = await suppliersRepository.find()
-    return allSuppliers.filter(supplier => {
+    const foundSuppliers = allSuppliers.filter((supplier) => {
       return supplier.name.toLowerCase().includes(input.toLowerCase())
     })
+    return foundSuppliers
   } catch (error) {
     console.error(error)
     return []
@@ -90,7 +92,7 @@ ipcMain.handle('get-suppliers', async (event, input: string): Promise<Supplier[]
 })
 
 //I'm getting supplierRepository to talk to dataBase, to be exact to Suppliers
-async function getSupplierRepository() {
+async function getSupplierRepository(): Promise<void> {
   const dataSource = await createDatabaseConnection()
   suppliersRepository = dataSource.getRepository(Supplier)
 }
