@@ -3,8 +3,8 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import 'reflect-metadata'
-import { createDatabaseConnection } from '../database/database'
-import { Supplier } from '../entities/Supplier.entity'
+import { createDatabaseConnection } from './database/database'
+import { Supplier } from './entities/Supplier.entity'
 import { ILike, Repository } from 'typeorm'
 
 function createWindow(): void {
@@ -79,7 +79,7 @@ app.on('window-all-closed', () => {
 let suppliersRepository: Repository<Supplier>
 
 //handle request to get suppliers
-ipcMain.handle('get-suppliers', async (event, input: string): Promise<Supplier[]> => {
+ipcMain.handle('get-suppliers', async (_, input: string): Promise<Supplier[]> => {
   try {
     const foundSuppliers = await suppliersRepository.find({
       where: {

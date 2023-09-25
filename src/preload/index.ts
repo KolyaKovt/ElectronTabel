@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import 'reflect-metadata'
-import { Supplier } from 'src/entities/Supplier.entity'
+import { Supplier } from '../main/entities/Supplier.entity'
 
 // Custom APIs for renderer
 const api = {
